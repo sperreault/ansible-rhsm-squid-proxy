@@ -1,0 +1,52 @@
+---
+  - name: install required packages
+    packages:
+      name: "{{ item }}"
+    with_items: "{{ rhsm_squid_proxy_packages }}"
+    notify: enable squid2
+
+  - name: copy squid2 config file
+    template:
+      src: "{{ rhsm_squid_proxy_conf_src }}"
+      dest: "{{ rhsm_squid_proxy_conf_dest }}"
+      mode: "0644"
+      owner: "root"
+      group: "root"
+      backup: "yes"
+    notify: restart squid2
+
+  - name: copy squid2 sysconfig file
+    template:
+      src: "{{ rhsm_squid_proxy_sysconfig_src }}"
+      dest: "{{ rhsm_squid_proxy_sysconfig_dest }}"
+      mode: "0644"
+      owner: "root"
+      group: "root"
+      backup: "yes"
+    notify: restart squid2
+
+  - name: copy squid2 service unit file
+    template:
+      src: "{{ rhsm_squid_proxy_service_unit_src }}"
+      dest: "{{ rhsm_squid_proxy_service_unit_dest }}"
+      mode: "0644"
+      owner: "root"
+      group: "root"
+      backup: "yes"
+    notify: restart squid2
+
+  - name: make directory /var/spool/squid2
+    file:
+      name: "/var/spool/squid2"
+      mode: 0755
+      owner: "squid"
+      group: "squid"
+      state: "directory"
+
+  - name: chcon /var/spool/squid2
+    shell: chcon -R --reference=/var/spool/squid /var/spool/squid2
+
+  - sefcontext:
+    target: '/var/spool/squid2(/.*)?'
+    setype: squid_cache_t
+    state: present

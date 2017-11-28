@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+http_port {{ rhsm_squid_proxy_http_port }}
+pid_filename /var/run/squid2.pid
+visible_hostname {{ rhsm_squid_proxy_visible_hostname }}
+cache_dir aufs /var/spool/squid2 1000 16 256
+coredump_dir                   /var/spool/squid2
+maximum_object_size_in_memory  1 MB
+maximum_object_size            10 MB
+access_log                     /var/log/squid/2-access.log squid
+cache_mem                      10 MB
+cache_store_log                /var/log/squid/2-store.log
+cache_log                      /var/log/squid/2-cache.log
+acl LOCAL_DOMAIN dstdomain .{{ rhsm_squid_proxy_dstdomain }}
+{% for ip in rhsm_squid_proxy_localips %}
+acl LOCAL_IP dst {{ ip }}
+{%endfor%}
+http_access allow localhost
+always_direct  allow LOCAL_DOMAIN
+always_direct  allow LOCAL_IP
+never_direct    allow all
+cache deny all
+cache_peer {{ rhsm_squid_proxy_external_proxy_ip }} paren {{ rhsm_squid_proxy_external_proxy_port }} 0 no-query default

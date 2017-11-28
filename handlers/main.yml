@@ -1,0 +1,12 @@
+---
+# handlers file for ansible-rhsm-squid-proxy
+  - name: restart squid2
+    service:
+      name: "{{ rhsm_squid_proxy_service_name }}"
+      state: "restarted"
+
+  - name: enable squid2
+    service:
+      name: "{{ rhsm_squid_proxy_service_name }}"
+      enabled: "yes"
+      state: "started"
