@@ -11,7 +11,7 @@ Satellite 6.2 host
 
 Role Variables
 --------------
-
+```yaml
 rhsm_squid_proxy_packages:
   - squid
   - libselinux-python
@@ -31,7 +31,7 @@ rhsm_squid_proxy_localips:
   - "192.168.0.0/16"
 rhsm_squid_proxy_external_proxy_ip: "192.168.1.1"
 rhsm_squid_proxy_external_proxy_port: "1234"
-
+```
 
 Dependencies
 ------------
