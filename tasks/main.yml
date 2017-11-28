@@ -1,3 +1,5 @@
+# -*- yaml modeline -*-
+# vim: set ts=4 sw=4 sts=2 expandtab:
 ---
   - name: install required packages
     package:
@@ -6,6 +8,9 @@
     with_items: "{{ rhsm_squid_proxy_packages }}"
     notify: enable squid2
     register: install_squid
+    tags:
+       - install
+       - rhsm-squid-proxy
 
   - name: copy squid2 config file
     template:
@@ -16,6 +21,9 @@
       group: "root"
       backup: "yes"
     notify: restart squid2
+    tags:
+       - update
+       - rhsm-squid-proxy
 
   - name: copy squid2 sysconfig file
     template:
@@ -26,6 +34,9 @@
       group: "root"
       backup: "yes"
     notify: restart squid2
+    tags:
+       - update
+       - rhsm-squid-proxy
 
   - name: copy squid2 service unit file
     template:
@@ -36,27 +47,41 @@
       group: "root"
       backup: "yes"
     notify: restart squid2
+    tags:
+       - update
+       - rhsm-squid-proxy
 
   - name: make directory /var/spool/squid2
     file:
       name: "/var/spool/squid2"
-      mode: 0755
+      mode: "0755"
       owner: "squid"
       group: "squid"
       state: "directory"
     register: make_squid_directory
+    tags:
+       - update
+       - rhsm-squid-proxy
 
   - name: chcon /var/spool/squid2
-    shell: chcon -R --reference=/var/spool/squid /var/spool/squid2
+    shell: "chcon -R --reference=/var/spool/squid /var/spool/squid2"
     when: make_squid_directory.changed
-
+    tags:
+       - update
+       - rhsm-squid-proxy
 
   - sefcontext:
-      target: '/var/spool/squid2(/.*)?'
+      target: "/var/spool/squid2(/.*)?"
       setype: squid_cache_t
       state: present
     when: make_squid_directory.changed
+    tags:
+       - update
+       - rhsm-squid-proxy
 
   - name: populate cache directory
-    shell: squid -z -f /etc/squid/squid2.conf
+    shell: "squid -z -f /etc/squid/squid2.conf"
     when: install_squid.changed
+    tags:
+       - update
+       - rhsm-squid-proxy
