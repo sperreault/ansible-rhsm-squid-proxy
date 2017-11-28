@@ -44,14 +44,18 @@
       owner: "squid"
       group: "squid"
       state: "directory"
+    register: make_squid_directory
 
   - name: chcon /var/spool/squid2
     shell: chcon -R --reference=/var/spool/squid /var/spool/squid2
+    when: make_squid_directory.changed
+
 
   - sefcontext:
       target: '/var/spool/squid2(/.*)?'
       setype: squid_cache_t
       state: present
+    when: make_squid_directory.changed
 
   - name: populate cache directory
     shell: squid -z -f /etc/squid/squid2.conf
